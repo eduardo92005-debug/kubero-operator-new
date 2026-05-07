@@ -114,7 +114,7 @@ spec:
       - name: deployment-keys
         secret:
           defaultMode: 0666
-          secretName: deployment-keys
+          secretName: {{ include "kuberobuild.deploymentKeysSecretName" . }}
       - emptyDir: {}
         name: app-storage
       - name: pull-secret

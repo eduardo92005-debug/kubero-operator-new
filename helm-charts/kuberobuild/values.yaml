@@ -10,6 +10,12 @@ repository:
 git:
   url: "git@github.com:kubero-dev/template-nodeapp.git"
   ref: "main"
+  # Optional per-build deploy key. When set, the build job creates and mounts
+  # this key instead of the pipeline-wide deployment-keys secret.
+  secretName: ""
+  keys:
+    priv: ""
+    pub: ""
 podSecurityContext:
   fsGroup: 1000
 

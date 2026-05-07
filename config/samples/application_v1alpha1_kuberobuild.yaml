@@ -15,6 +15,12 @@ spec:
   git:
     url: "git@github.com:kubero-dev/template-nodeapp.git"
     revision: "main"
+    # Optional: pass a deploy key for this app repository. Without this, the
+    # build falls back to the pipeline deployment-keys secret.
+    secretName: ""
+    keys:
+      priv: ""
+      pub: ""
   podSecurityContext:
     fsGroup: 1000
 
