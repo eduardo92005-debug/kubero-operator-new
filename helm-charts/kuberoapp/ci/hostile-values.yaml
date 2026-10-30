@@ -1,0 +1,46 @@
+# What a malicious tenant would try, mapped to the real kuberoapp keys.
+# Used by scripts/check-rendered.sh and helm-unittest suites. Keys the chart ignores today are kept
+# on purpose: if a future template starts rendering them, the checks catch it.
+deploymentstrategy: docker
+serviceAccount:
+  create: true
+  name: kubero                      # reuse the platform ServiceAccount (cluster RBAC)
+  annotations: {}
+automountServiceAccountToken: true  # not a chart key today; must never become one
+podSecurityContext:
+  runAsUser: 0
+  fsGroup: 0
+image:
+  repository: harbor.example.com/kubero/other-pipeline-app   # another pipeline's image (1.2 / X1)
+  tag: latest
+  run:
+    securityContext:
+      privileged: true
+      allowPrivilegeEscalation: true
+      runAsUser: 0
+      runAsNonRoot: false
+      readOnlyRootFilesystem: false
+      capabilities:
+        add: [SYS_ADMIN, NET_ADMIN]
+imagePullSecrets:
+  - name: platform-pull-secret
+podLabels:
+  kubero.dev/platform: "true"       # try to escape tenant selectors
+  buildstrategy: dockerfile         # try to match tenant-allow-build-kube-api
+hostNetwork: true
+cronjobs:
+  - name: kubero                     # collide with platform names (2.6)
+    schedule: "* * * * *"
+    image: docker.io/library/alpine:latest
+    command: ["sh", "-c", "cat /var/run/secrets/kubernetes.io/serviceaccount/token"]
+    restartPolicy: Never
+ingress:                             # INV-7 / INV-8 (Part J): annotations and hosts a tenant must never set
+  annotations:
+    nginx.ingress.kubernetes.io/server-snippet: "return 200;"
+    nginx.ingress.kubernetes.io/server-alias: "victim.example.com"
+    cert-manager.io/issuer: "tenant-own-issuer"
+  hosts:
+    - host: "*.example.com"
+      paths:                         # a valid Ingress, so the wildcard host is what fails
+        - path: /
+          pathType: ImplementationSpecific

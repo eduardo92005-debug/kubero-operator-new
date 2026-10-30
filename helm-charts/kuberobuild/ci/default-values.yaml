@@ -1,0 +1,4 @@
+# Render values for the gate. The chart's own default tag (123456) renders unquoted as a number and
+# makes the Job invalid: that is finding B1 (unquoted values), tracked in docs/security/findings.md.
+repository:
+  tag: "ci-tag"
